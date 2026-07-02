@@ -47,7 +47,8 @@ jobs:
       - name: Collect PDFs
         run: |
           mkdir -p dist
-          cp divider-poster/voltage_divider_poster_final.pdf dist/divider-poster.pdf
+          cp divider-poster/voltage_divider_poster_A2.pdf dist/divider-poster-a2.pdf
+          cp divider-poster/voltage_divider_poster_A4.pdf dist/divider-poster-a4.pdf
           cp opamp-poster/opamp_poster.pdf dist/opamp-poster-a2.pdf
           cp opamp-poster/opamp_poster_a4.pdf dist/opamp-poster-a4.pdf
           cp resistor-poster/output/resistor_series_poster.pdf dist/resistor-poster.pdf
