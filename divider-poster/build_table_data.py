@@ -52,16 +52,19 @@ def build_pool(series, scale):
 
 
 def nearest(pool, target):
-    return min(pool, key=lambda c: abs(c[0] - target))
+    return min(pool, key=lambda c: (abs(c[0] - target), min(c[1], c[2])))
 
 
 def resolve(pool_seq_names, pools, targets):
     """
     E12 -> E24 -> E48 の順に、各ターゲットへ最も近い組み合わせを割り当てる。
 
-    重複解決ルール: ある組み合わせが複数のターゲットに「最近傍」として
-    選ばれた場合、その中で最もフィットしている(誤差が最小の)ターゲットだけ
-    その系列の結果を採用し、残りは次の系列で再検索する。
+    解決ルール:
+    1. 重複解決: ある組み合わせが複数のターゲットに「最近傍」として選ばれた場合、
+       その中で最もフィットしている(誤差が最小の)ターゲットだけその系列の結果を採用し、
+       残りは次の系列で再検索する。
+    2. 誤差解決: 割り当てられた結果の誤差が許容誤差(TOLERANCE)を超える場合、
+       そのターゲットは次の系列で再検索する。
     """
     assign = {t: (pool_seq_names[0], *nearest(pools[pool_seq_names[0]], t)) for t in targets}
 
@@ -82,6 +85,13 @@ def resolve(pool_seq_names, pools, targets):
             for t in ts_sorted[1:]:
                 ratio, r1n, r2n = nearest(pools[next_src], t)
                 assign[t] = (next_src, ratio, r1n, r2n)
+
+        # 許容誤差を超えているターゲットも次の系列にアップグレードする
+        for t, (src, ratio, r1n, r2n) in list(assign.items()):
+            if src == cur_src:
+                if abs(ratio - t) > TOLERANCE:
+                    ratio_next, r1n_next, r2n_next = nearest(pools[next_src], t)
+                    assign[t] = (next_src, ratio_next, r1n_next, r2n_next)
 
     return assign
 
