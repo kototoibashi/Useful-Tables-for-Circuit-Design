@@ -27,12 +27,17 @@ jobs:
       - name: Install Python dependencies
         run: |
           pip install -r divider-poster/requirements.txt
+          pip install -r e6-divider-poster/requirements.txt
           pip install -r opamp-poster/requirements.txt
           pip install -r resistor-poster/requirements.txt
 
       - name: Build divider-poster
         working-directory: divider-poster
         run: python make_poster_final.py
+
+      - name: Build e6-divider-poster
+        working-directory: e6-divider-poster
+        run: python make_e6_poster.py
 
       - name: Build opamp-poster
         working-directory: opamp-poster
@@ -49,6 +54,7 @@ jobs:
           mkdir -p dist
           cp divider-poster/voltage_divider_poster_A2.pdf dist/divider-poster-a2.pdf
           cp divider-poster/voltage_divider_poster_A4.pdf dist/divider-poster-a4.pdf
+          cp e6-divider-poster/e6_divider_poster.pdf dist/e6-divider-poster.pdf
           cp opamp-poster/opamp_poster.pdf dist/opamp-poster-a2.pdf
           cp opamp-poster/opamp_poster_a4.pdf dist/opamp-poster-a4.pdf
           cp resistor-poster/output/resistor_series_poster.pdf dist/resistor-poster.pdf

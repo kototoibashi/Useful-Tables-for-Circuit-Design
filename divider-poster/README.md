@@ -1,6 +1,6 @@
 # divider-poster
 
-2直列抵抗（R1-R2）による分圧比の早見表を、印刷用A2横ポスターPDFとして生成するPythonスクリプトです。
+2直列抵抗（R1-R2）による分圧比の早見表を、印刷用ポスターPDF（A2・A4）およびMarkdown表として生成するPythonスクリプトです。
 
 ## 特徴
 
@@ -11,12 +11,14 @@
   - E48：枠線＋下線
   - 該当なし（±0.125%以内に組み合わせが存在しない）：斜線
 - 49%〜50%の範囲は表に収まらないため、フッターに補足リストとして表示
+- A2版とA4版でレイアウトを個別最適化（デフォルトで両方生成）
+- `--markdown` 指定でGitHub等にそのまま貼れるMarkdown表も出力可能
 
 ## 必要環境
 
 - Python 3
 - [reportlab](https://pypi.org/project/reportlab/)
-- 日本語 TrueType フォント（IPAゴシック）
+- 日本語 TrueType フォント（IPAゴシック、またはWindowsのMS ゴシック/メイリオ）
 
 ```bash
 pip install -r requirements.txt
@@ -24,14 +26,18 @@ pip install -r requirements.txt
 
 ### フォントについて
 
-このスクリプトはフォントパスを `/usr/share/fonts/opentype/ipafont-gothic/ipag.ttf` に**固定**で参照します（コマンドラインオプションでの変更には対応していません）。
+スクリプトは以下の候補を順に探し、最初に見つかったものを使用します。
+
+1. `/usr/share/fonts/opentype/ipafont-gothic/ipag.ttf`（Linux）
+2. `C:/Windows/Fonts/msgothic.ttc`（Windows）
+3. `C:/Windows/Fonts/meiryo.ttc`（Windows）
 
 ```bash
 # Ubuntu / Debian の例
 sudo apt-get install fonts-ipafont-gothic
 ```
 
-別環境・別フォントを使う場合は、`make_poster_final.py` 冒頭の `pdfmetrics.registerFont(...)` の行を直接書き換えてください。
+いずれも見つからない場合はエラーで終了します。別のフォントを使いたい場合は `make_poster_final.py` 冒頭の `font_paths` リストを直接書き換えてください（コマンドラインオプションでの指定には対応していません）。
 
 ## 使い方
 
@@ -39,10 +45,30 @@ sudo apt-get install fonts-ipafont-gothic
 
 ```bash
 cd divider-poster
+
+# デフォルト: A2・A4の両方のPDFを生成
 python make_poster_final.py
+
+# A2のみ / A4のみ生成
+python make_poster_final.py --size A2
+python make_poster_final.py --size A4
+
+# PDFを生成せず、Markdown表だけ出力
+python make_poster_final.py --size none --markdown
 ```
 
-`voltage_divider_poster_final.pdf`（A2横向き）がこのディレクトリ内に生成されます。出力先やページサイズを変えるコマンドラインオプションはありません。
+`voltage_divider_poster_A2.pdf` / `voltage_divider_poster_A4.pdf` がこのディレクトリ内に生成されます。`--markdown`（`-m`）を付けると `voltage_divider_table.md` も併せて出力されます。
+
+### オプション一覧
+
+| オプション | 説明 | デフォルト |
+|---|---|---|
+| `--size` | 生成するPDFサイズ（`A2` / `A4` / `both` / `none`） | `both` |
+| `-m`, `--markdown` | Markdown表（`voltage_divider_table.md`）も生成する | 指定なし |
+
+## 50%を超える比率が必要な場合
+
+この表は1%〜50%の範囲しか掲載していませんが、`Vout = Vin × R2/(R1+R2)` という式の性質上、目標比率が x%（x > 50）のときは (100-x)% の行を探し、その R1 と R2 を入れ替えれば厳密に x% が得られます（`R1/(R1+R2) = 1 - R2/(R1+R2)` という恒等式のため、近似ではなく正確に成立します）。
 
 ## データファイル
 

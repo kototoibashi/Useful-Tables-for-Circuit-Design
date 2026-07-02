@@ -7,7 +7,8 @@
 | ディレクトリ | 内容 | 用紙サイズ |
 |---|---|---|
 | [resistor-poster](resistor-poster/) | 抵抗値系列（E12 / E24 / E48）早見表＋カラーコード表 | A0〜A4横 |
-| [divider-poster](divider-poster/) | 2直列抵抗の分圧比（1%〜50%）早見表 | A2横 |
+| [divider-poster](divider-poster/) | 2直列抵抗の分圧比（1%〜50%、E12/E24/E48）早見表 | A2横 / A4横 |
+| [e6-divider-poster](e6-divider-poster/) | 2直列抵抗の分圧比（1%〜50%、E6のみで作れる値を全数掲載）早見表 | A2横 |
 | [opamp-poster](opamp-poster/) | オペアンプ増幅回路のゲイン設定抵抗値早見表 | A2横 / A4横 |
 
 それぞれの詳しい使い方・オプション・データ形式は各ディレクトリの README を参照してください。
