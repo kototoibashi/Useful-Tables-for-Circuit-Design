@@ -369,14 +369,78 @@ def generate_poster(size):
     c.save()
     print(f"[{size}] Saved {pdf_filename}. grid groups: {[len(g) for g in grid_groups]}")
 
+def generate_markdown(output_path=None):
+    if not output_path:
+        output_path = os.path.join(script_dir, 'voltage_divider_table.md')
+    
+    lines = [
+        "# 2直列抵抗 分圧比 早見表",
+        "",
+        "Vout = Vin × R2 / (R1 + R2)",
+        "",
+        "## 概要",
+        "この表は、2つの直列抵抗（R1, R2）を用いた分圧回路において、所望の分圧比（Vout/Vin）を得るための最適な抵抗値の組み合わせを示したものです。",
+        "",
+        "- **セルの表記**: `R1-R2 (系列名)` の形式で、そのままの整数比で抵抗値の組み合わせを示します（例: `1100-11 (E24)` は R1=1.1kΩ, R2=11Ω など桁数を合わせて使用可能）。",
+        "- **使用系列**: 括弧内に E12, E24, E48 のいずれかを示します。",
+        "- **判定基準**: 各分圧比目標に対して誤差が ±0.125% 以内の組み合わせを選定しています。",
+        "- **適合なし (`-`)**: 誤差 ±0.125% 以内で条件を満たす組み合わせが存在しないセルは `-` と表記しています。",
+        "",
+        "## 早見表 (1% 〜 48%)",
+        "分圧比の整数部（1〜48%）を行、小数部のオフセット（+0.0%, +0.25%, +0.5%, +0.75%）を列として選択してください。",
+        ""
+    ]
+    
+    # Headers
+    headers = ["分圧比", "+0.0%", "+0.25%", "+0.5%", "+0.75%"]
+    lines.append("| " + " | ".join(headers) + " |")
+    lines.append("| " + " | ".join([":---:"] * len(headers)) + " |")
+    
+    # Grid Data
+    for r in range(1, 49):
+        row_key = str(r)
+        row_cells = GRID_DATA[row_key]
+        row_cols = [f"**{row_key}%**"]
+        for cell in row_cells:
+            if not cell['ok']:
+                row_cols.append("-")
+            else:
+                row_cols.append(f"`{cell['r1']}-{cell['r2']}` ({cell['src']})")
+        lines.append("| " + " | ".join(row_cols) + " |")
+        
+    lines.append("")
+    lines.append("## 参考（49% 〜 50%）")
+    lines.append("49%〜50%付近（E48系列まで開放しても48.94%〜50.00%の間は完全に組み合わせが空白となるため、表外としてリストアップしています）")
+    lines.append("")
+    
+    list_headers = ["分圧比", "組み合わせ (R1-R2)", "使用系列"]
+    lines.append("| " + " | ".join(list_headers) + " |")
+    lines.append("| " + " | ".join([":---:"] * len(list_headers)) + " |")
+    
+    for e in LIST_DATA:
+        actual_ratio = f"{e['ratio']:.3f}%".rstrip('0').rstrip('.')
+        if not actual_ratio.endswith('%'):
+            actual_ratio += '%'
+        lines.append(f"| {actual_ratio} | `{e['r1']}-{e['r2']}` | {e['src']} |")
+        
+    with open(output_path, 'w', encoding='utf-8') as f:
+        f.write("\n".join(lines) + "\n")
+        
+    print(f"[Markdown] Saved {os.path.basename(output_path)}")
+
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description="Generate voltage divider posters in A2 and/or A4 landscape sizes.")
-    parser.add_argument('--size', choices=['A2', 'A4', 'both'], default='both',
-                        help="Paper size of the generated PDF (default: both)")
+    parser = argparse.ArgumentParser(description="Generate voltage divider posters in A2 and/or A4 landscape sizes, or as Markdown.")
+    parser.add_argument('--size', choices=['A2', 'A4', 'both', 'none'], default='both',
+                        help="Paper size of the generated PDF (default: both). Use 'none' to skip PDF generation.")
+    parser.add_argument('--markdown', '-m', action='store_true',
+                        help="Generate a Markdown version of the table (voltage_divider_table.md)")
     args = parser.parse_args()
 
     if args.size == 'both':
         generate_poster('A2')
         generate_poster('A4')
-    else:
+    elif args.size != 'none':
         generate_poster(args.size)
+
+    if args.markdown:
+        generate_markdown()
