@@ -98,13 +98,20 @@ def resolve(pool_seq_names, pools, targets):
 
 def main():
     pools = {
-        'E12': build_pool(E12, 10),
         'E24': build_pool(E24, 10),
         'E48': build_pool(E48, 100),
     }
 
     targets = [round(r + o, 2) for r in ROWS for o in OFFSETS]
-    assign = resolve(['E12', 'E24', 'E48'], pools, targets)
+    assign = resolve(['E24', 'E48'], pools, targets)
+
+    # E12 の判定用値リスト
+    E12_scaled = [round(x * 10) for x in E12]
+
+    def is_e12_value(val):
+        while val % 10 == 0 and val not in E12_scaled:
+            val //= 10
+        return val in E12_scaled
 
     data_full = {}
     for r in ROWS:
@@ -112,6 +119,8 @@ def main():
         for o in OFFSETS:
             t = round(r + o, 2)
             src, ratio, r1n, r2n = assign[t]
+            if src == 'E24' and is_e12_value(r1n) and is_e12_value(r2n):
+                src = 'E12'
             ok = abs(ratio - t) <= TOLERANCE
             row_data.append({
                 'target': t, 'src': src, 'ratio': round(ratio, 3),
