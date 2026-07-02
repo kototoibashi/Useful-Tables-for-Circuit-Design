@@ -26,6 +26,15 @@ python <スクリプト名>.py
 
 生成されるPDFは各ツールのディレクトリ直下に出力されます（`.gitignore` によりGit管理対象外）。
 
+## 生成PDFの配布（GitHub Releases）
+
+生成物のPDF自体はGit管理せず、[GitHub Actions](.github/workflows/build-posters.yml) でビルドして Releases に添付する運用にしています。
+
+- `v*.*.*` 形式のタグをpushすると、そのタグ名でReleaseを作成しPDFを添付（例: `git tag v1.0.0 && git push origin v1.0.0`）
+- Actionsタブから手動実行（workflow_dispatch）すると、`latest` タグのプレリリースとしてPDFを最新化
+
+いずれの場合もビルドはワークフロー実行のたびにゼロから行われるため、リポジトリ内のスクリプト・データの内容と生成PDFが常に一致します。
+
 ## ライセンス
 
 このリポジトリ全体を [CC0 1.0 Universal](LICENSE) の下でパブリックドメインに提供します。著作権を主張せず、商用・非商用を問わず自由に複製・改変・再配布して構いません。
