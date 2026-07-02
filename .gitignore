@@ -1,0 +1,15 @@
+# Generated poster PDFs
+*.pdf
+
+# User-supplied circuit image (opamp-poster A4 template placeholder input)
+opamp_circuit_uploaded.png
+
+# Python
+__pycache__/
+*.pyc
+
+# OS
+.DS_Store
+
+# Claude Code local settings (per-developer, not shared)
+.claude/settings.local.json
